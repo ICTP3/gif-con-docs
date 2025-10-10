@@ -1,0 +1,257 @@
+# openapiのバージョン指定
+openapi: 3.0.3
+
+# APIの基本情報(タイトル、説明、バージョンなど)を指定
+info:
+  title: 「Gif-Con」API仕様書
+  version: 1.0.0
+  description: |
+    ## **OpenAPIで作ったAPIの仕様書です。**
+    ## **並行開発の要となるものなので、参考にしてください。**
+
+servers:
+  - url: http://localhost:8080
+    description: ローカル環境
+
+# タグの指定（プルダウンの設定）
+tags:
+  - name: ping
+    description: | 
+      *Health check endpoint*
+  - name: upload
+    description: |
+      *File Upload*
+  - name: convert
+    description: |
+      *video file to gif convert*
+
+
+# =============== [各エンドポイントAPIの定義] =============== # 
+
+paths:
+
+  # ======================== [/ping] ======================== #
+  /ping:
+    get:
+      summary: サーバの稼働確認
+      description: サーバが正常に稼働しているかを確認する
+      tags:
+        - ping
+
+      responses:
+        '200':
+          description: サーバが正常に応答した場合
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: pong
+                    
+
+  # ======================== [/upload] ======================== #
+  /upload:
+    post:
+      summary: 動画をアップロードして、指定フォルダに保存
+      description: 動画ファイルをアップロードし、/uploadsに一時保存する
+      tags:
+        - upload
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: アップロードする動画ファイル
+
+      responses:
+        '200':
+          description: 動画ファイルのアップロードに成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message: 
+                    type: string
+                    example: "アップロードに成功しました"
+                  url:
+                    type: string
+                    example: "/uploads/sample-uuid.mp4"
+                
+        '400':
+          description: | 
+            クライアントエラー
+              - ファイルが選択されていません
+              - 対応していないファイル形式です
+              - ファイルサイズが上限(100MB)を超過しています
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                no_file:
+                  summary: ファイル未選択
+                  value:
+                    status: error
+                    message: ファイルが選択されていません
+                invalid_type:
+                  summary: 非対応形式
+                  value:
+                    status: error
+                    message: 対応していないファイル形式です
+                too_large:
+                  summary: サイズ超過
+                  value:
+                    status: error
+                    message: ファイルサイズが上限を超えています
+    
+        '500':
+          description: |
+            サーバ内部エラー
+              - 保存用ディレクトリの作成に失敗した場合
+              - アップロードファイルの保存に失敗した場合
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                mkdir_fail:
+                  summary: 保存ディレクトリの作成失敗
+                  value:
+                    status: error
+                    message: 保存用ディレクトリの作成に失敗しました
+                save_fail:
+                  summary: ファイル保存失敗
+                  value:
+                    status: error
+                    message: ファイルの保存に失敗しました
+
+                
+  # ======================== [/convert] ======================== #
+  /convert:
+    post:
+      summary: アップロード済み動画をGIFに変換
+      description: |
+        /uploadsに保存された動画をサーバ側でGIFに変換し、\
+        /convertedフォルダに保存する
+      tags:
+        - convert
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filename:
+                  type: string
+                  example: "sample-uuid.mp4"
+                  description: 変換対象の動画ファイル名
+
+      responses:
+        '200':
+          description: GIF変換に成功した場合
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              example:
+                status: success
+                message: "GIF変換に成功しました"
+                url: "/converted/sample-uuid.gif"
+
+        '400':
+          description: |
+            クライアントエラー
+              - 入力ファイルが見つからない
+              - 対応していないファイル形式
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missing_file:
+                  summary: ファイルが存在しない
+                  value:
+                    status: error
+                    message: ファイルが存在しません
+                invalid_format:
+                  summary: 非対応形式
+                  value:
+                    status: error
+                    message: 対応していないファイル形式です
+                                
+        '500':
+          description: |
+            サーバー内部エラー
+              - GIF変換処理中にエラーが発生した場合
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string         
+                    example: error                    
+                  message:
+                    type: string
+                    example: GIF変換に失敗しました
+
+                    
+# ============================== [COMPONENTS] ============================== #  
+
+components:
+  schemas:
+    SuccessResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        message:
+          type: string
+          example: 処理が完了しました
+        url:
+          type: string
+          example: "/uploads/sample.mp4"
+  
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: error
+        message:
+          type: string
+          example: エラーメッセージ内容
+
+    DirectoryCreateError:
+      type: object
+      properties:
+        status:
+          type: string
+          example: error
+        message:
+          type: string
+          example: 保存ディレクトリの作成に失敗しました
+
+    FileSaveError:
+      type: object
+      properties:
+        status:
+          type: string
+          example: error
+        message:
+          type: string
+          example: ファイルの保存に失敗しました
+
