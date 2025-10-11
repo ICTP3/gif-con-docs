@@ -1,0 +1,23 @@
+name: Discord Notify
+
+on:
+  push:
+    branches:
+      - main  # mainブランチへのpushで通知する
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send notification to Discord
+        run: |
+          curl -H "Content-Type: application/json" \
+            -d '{
+              "username": "GitHub Bot",
+              "embeds": [{
+                "title": "🚀 Push Event Detected!",
+                "description": "💬 新しいコミットがmainにpushされました！",
+                "color": 5814783
+              }]
+            }' \
+            ${{ secrets.DISCORD_WEBHOOK }}
