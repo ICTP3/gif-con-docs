@@ -27,7 +27,7 @@ DESCRIPTION=$(cat <<EOF
 \`\`\`
 ${COMMIT_MESSAGE}
 \`\`\`
-🔗 [コミットを確認する](${COMMIT_URL})
+🔗 [commitを確認する](${COMMIT_URL})
 EOF
 )
 
@@ -35,13 +35,13 @@ payload=$(jq -n \
   --arg desc "$DESCRIPTION" \
   --argjson color "$COLOR" \
   '{
-    "username": "🐣 Gif-Con CI Bot",
+    "username": "GitHub Push Bot 🤖",
     "avatar_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
     "embeds": [{
       "title": "🚀 新しいプッシュを検知しました！",
       "description": $desc,
       "color": $color,
-      "footer": { "text": "Gif-Con 開発チーム | 自動通知" },
+      "footer": { "text": "スタジオジフリ | 自動通知" },
       "timestamp": (now | todate)
     }]
   }')

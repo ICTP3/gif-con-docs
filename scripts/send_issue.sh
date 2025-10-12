@@ -33,11 +33,24 @@ payload=$(jq -n \
         "title": $action,
         "color": 5814783,
         "fields": [
-          {"name": "🧾 リポジトリ", "value": $repo, "inline": true},
-          {"name": "🙋 作成者", "value": $user, "inline": true},
-          {"name": "📌 Issue", "value": "[#\($num)] \($title)\n\n🔗 [GitHubで見る](\($url))"}
-        ],
-        "footer": {"text": "Gif-Con Project | 自動通知 by GitHub Actions"}
+          {
+            "name": "🧾 リポジトリ",
+            "value": "`gif-con-backend`",
+            "inline": true
+          },
+          {
+            "name": "🙋 作成者",
+            "value": "`Yamamoto_Ryosei`",
+            "inline": true
+          },
+          {
+            "name": "📌 Issue",
+            "value": "[#\($num)] \($title)\n🔗 [GitHubで見る](\($url))",
+            "inline": false
+          }
+        ]
+        "footer": { "text": "スタジオジフリ | 自動通知" },
+        "timestamp": (now | todate)
       }
     ]
   }'
