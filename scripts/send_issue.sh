@@ -37,7 +37,7 @@ payload=$(jq -n \
           {"name": "🙋 作成者", "value": $user, "inline": true},
           {"name": "📌 Issue", "value": "[#\($num)] \($title)\n\n🔗 [GitHubで見る](\($url))"}
         ],
-        "footer": { "text": "スタジオジフリ  | 自動通知" },
+        "footer": { "text": "スタジオジフリ  |  自動通知" },
         "timestamp": (now | todate)
       }
     ]
