@@ -49,7 +49,7 @@ payload=$(jq -n \
             "inline": false
           }
         ]
-        "footer": { "text": "スタジオジフリ | 自動通知" },
+        "footer": { "text": "スタジオジフリ  |  自動通知" },
         "timestamp": (now | todate)
       }
     ]
