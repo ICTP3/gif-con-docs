@@ -9,20 +9,30 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Send rich notification to Discord
+      - name: Send notification to Discord
+        env:
+          WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK }}
         run: |
           COMMIT_MESSAGE=$(jq -r '.head_commit.message' $GITHUB_EVENT_PATH)
           COMMIT_AUTHOR=$(jq -r '.head_commit.author.name' $GITHUB_EVENT_PATH)
           REPO_NAME=$(jq -r '.repository.name' $GITHUB_EVENT_PATH)
           COMMIT_URL=$(jq -r '.head_commit.url' $GITHUB_EVENT_PATH)
 
-          curl -H "Content-Type: application/json" \
-            -d "{
-              \"username\": \"GitHub Bot\",
-              \"embeds\": [{
-                \"title\": \"🚀 New Push Event\",
-                \"description\": \"📦 Repo: ${REPO_NAME}\n🧑 Author: ${COMMIT_AUTHOR}\n💬 Commit: ${COMMIT_MESSAGE}\n🔗 [View Commit](${COMMIT_URL})\",
-                \"color\": 5814783
+          # JSON本文を整形して送信
+          payload=$(jq -n \
+            --arg repo "$REPO_NAME" \
+            --arg author "$COMMIT_AUTHOR" \
+            --arg message "$COMMIT_MESSAGE" \
+            --arg url "$COMMIT_URL" \
+            '{
+              "username": "GitHub Bot",
+              "embeds": [{
+                "title": "🚀 New Push Event",
+                "description": ("📦 Repo: \($repo)\n🧑 Author: \($author)\n💬 Commit: \($message)\n🔗 [View Commit](" + $url + ")"),
+                "color": 5814783
               }]
-            }" \
-            ${{ secrets.DISCORD_WEBHOOK }}
+            }')
+
+          curl -H "Content-Type: application/json" \
+               -d "$payload" \
+               "$WEBHOOK_URL"
