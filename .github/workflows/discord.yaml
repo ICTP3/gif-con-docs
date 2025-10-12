@@ -12,57 +12,10 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
+      - name: コードをチェックアウト
+        uses: actions/checkout@v4
+
       - name: Discordへ通知を送信
         env:
           WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK }}
-        run: |
-          # ===== GitHub情報の取得 =====
-          COMMIT_MESSAGE=$(jq -r '.head_commit.message' $GITHUB_EVENT_PATH)
-          COMMIT_AUTHOR=$(jq -r '.head_commit.author.name' $GITHUB_EVENT_PATH)
-          REPO_NAME=$(jq -r '.repository.name' $GITHUB_EVENT_PATH)
-          COMMIT_URL=$(jq -r '.head_commit.url' $GITHUB_EVENT_PATH)
-          BRANCH=$(jq -r '.ref' $GITHUB_EVENT_PATH | sed 's/refs\/heads\///')
-
-          # ===== メッセージ色をブランチで変更 =====
-          COLOR=5793266 # デフォルト：青緑
-          if [[ "$BRANCH" == feature/* ]]; then
-            COLOR=16776960  # 黄色（新機能）
-          elif [[ "$BRANCH" == fix/* ]]; then
-            COLOR=16733525  # 赤（修正）
-          elif [[ "$BRANCH" == docs/* ]]; then
-            COLOR=10070709  # グレー（ドキュメント）
-          fi
-
-          # ===== Discord埋め込みメッセージを構築 =====
-          payload=$(jq -n \
-            --arg repo "$REPO_NAME" \
-            --arg author "$COMMIT_AUTHOR" \
-            --arg message "$COMMIT_MESSAGE" \
-            --arg url "$COMMIT_URL" \
-            --arg branch "$BRANCH" \
-            --argjson color "$COLOR" \
-            '{
-              "username": "🐣 Gif-Con CI Bot",
-              "avatar_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
-              "embeds": [{
-                "title": "🚀 新しいプッシュを検知しました！",
-                "description":
-                  "**━━━━━━━━━━━━━━━━━━**\n"
-                  + "🧾 **リポジトリ:** \($repo)\n"
-                  + "🌿 **ブランチ:** \($branch)\n"
-                  + "👤 **コミッター:** \($author)\n"
-                  + "**━━━━━━━━━━━━━━━━━━**\n"
-                  + "💬 **コミットメッセージ:**\n```" + $message + "```\n"
-                  + "🔗 [コミットを確認する](" + $url + ")",
-                "color": $color,
-                "footer": {
-                  "text": "Gif-Con 開発チーム | 自動通知"
-                },
-                "timestamp": (now | todate)
-              }]
-            }')
-
-          # ===== Discordへ送信 =====
-          curl -H "Content-Type: application/json" \
-               -d "$payload" \
-               "$WEBHOOK_URL"
+        run: bash scripts/discord_notify.sh
