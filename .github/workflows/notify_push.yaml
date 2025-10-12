@@ -1,4 +1,4 @@
-name: Discord Notify (Gif-Con Team JP)
+name: Notify Discord (Push)
 
 on:
   push:
@@ -17,5 +17,5 @@ jobs:
 
       - name: Discordへ通知を送信
         env:
-          WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK }}
-        run: bash scripts/discord_notify.sh
+          WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_PUSH }}
+        run: bash scripts/send_push.sh
