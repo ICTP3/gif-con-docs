@@ -9,7 +9,7 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Send notification to Discord
+      - name: Discordへ通知を送信
         env:
           WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK }}
         run: |
@@ -17,19 +17,24 @@ jobs:
           COMMIT_AUTHOR=$(jq -r '.head_commit.author.name' $GITHUB_EVENT_PATH)
           REPO_NAME=$(jq -r '.repository.name' $GITHUB_EVENT_PATH)
           COMMIT_URL=$(jq -r '.head_commit.url' $GITHUB_EVENT_PATH)
+          BRANCH=$(jq -r '.ref' $GITHUB_EVENT_PATH | sed 's/refs\/heads\///')
 
-          # JSON本文を整形して送信
           payload=$(jq -n \
             --arg repo "$REPO_NAME" \
             --arg author "$COMMIT_AUTHOR" \
             --arg message "$COMMIT_MESSAGE" \
             --arg url "$COMMIT_URL" \
+            --arg branch "$BRANCH" \
             '{
-              "username": "GitHub Bot",
+              "username": "🐣 Gif-Con CI Bot",
               "embeds": [{
-                "title": "🚀 New Push Event",
-                "description": ("📦 Repo: \($repo)\n🧑 Author: \($author)\n💬 Commit: \($message)\n🔗 [View Commit](" + $url + ")"),
-                "color": 5814783
+                "title": "🚀 新しいプッシュを検知しました！",
+                "description": ("🧾 **リポジトリ:** \($repo)\n🌿 **ブランチ:** \($branch)\n👤 **コミッター:** \($author)\n💬 **メッセージ:** \n```" + $message + "```\n🔗 [コミットを確認する](" + $url + ")"),
+                "color": 16761035,
+                "footer": {
+                  "text": "Gif-Con 開発チーム | 自動通知"
+                },
+                "timestamp": (now | todate)
               }]
             }')
 
