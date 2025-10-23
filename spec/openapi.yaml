@@ -160,52 +160,87 @@ paths:
 
       responses:
         '200':
-          description: GIF変換に成功した場合
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SuccessResponse'
-              example:
-                status: success
-                message: "GIF変換に成功しました"
-                url: "/converted/sample-uuid.gif"
-
-        '400':
-          description: |
-            クライアントエラー
-              - 入力ファイルが見つからない
-              - 対応していないファイル形式
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                missing_file:
-                  summary: ファイルが存在しない
-                  value:
-                    status: error
-                    message: ファイルが存在しません
-                invalid_format:
-                  summary: 非対応形式
-                  value:
-                    status: error
-                    message: 対応していないファイル形式です
-                                
-        '500':
-          description: |
-            サーバー内部エラー
-              - GIF変換処理中にエラーが発生した場合
+          description: GIF変換に成功
           content:
             application/json:
               schema:
                 type: object
                 properties:
                   status:
-                    type: string         
-                    example: error                    
+                    type: string
+                    example: success
                   message:
                     type: string
-                    example: GIF変換に失敗しました
+                    example: "GIF変換に成功しました"
+                  url:
+                    type: string
+                    example: "/converted/sample-uuid.gif"
+
+        '400':
+          description: |
+            クライアントエラー
+              - 無効なリクエストボディ
+              - 無効なファイル名
+              - 対応していないファイル形式
+              - 入力ファイルが見つからない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalid_requestbody:
+                  summary: 無効なリクエストボディ
+                  value:
+                   status: error
+                   message: 無効なリクエストボディです
+                invalid_filename:
+                  summary: 無効なファイル名
+                  value: 
+                    status: error
+                    message: 無効なファイル名です
+                invalid_format:
+                  summary: 非対応ファイル形式
+                  value:
+                    status: error
+                    message: 対応していないファイル形式です
+                missing_file:
+                    summary: ファイルが存在しない
+                    value:
+                      status: error
+                      message: ファイルが存在しません
+                                
+        '500':
+          description: |
+            サーバー内部エラー
+              - ffmpegが設定されていない
+              - 出力フォルダの作成に失敗
+              - 変換に時間が掛かりすぎている
+              - GIF変換処理中にエラーが発生
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                unconfigured_ffmpeg:
+                  summary: ffmpeg未設定
+                  value:
+                    status: error
+                    message: ffmpegが設定されていない
+                faild_outputfolder:
+                  summary: 出力フォルダ作成失敗
+                  value:
+                    status: error
+                    message: 出力フォルダの作成に失敗しました
+                timeout_conversion:
+                  summary: 変換に時間が掛かりすぎ
+                  value:
+                    status: error
+                    message: 変換に時間がかかりすぎている
+                faild_conversion:
+                  summary: 変換失敗
+                  value:
+                    status: error
+                    value: "ffmpegの実行に失敗: + err.Error()"
 
                     
 # ============================== [COMPONENTS] ============================== #  
