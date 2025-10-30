@@ -1,0 +1,192 @@
+/* =========================
+   カラーテーマ設定
+========================= */
+:root {
+  --bg: #f6f8fa;
+  --card: #fff;
+  --accent: #2563eb;
+  --text: #111827;
+  --muted: #6b7280;
+}
+
+/* 🌙 ダークテーマ用変数 */
+[data-theme="dark"] {
+  --bg: #1e293b;
+  --card: #334155;
+  --accent: #60a5fa;
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+}
+
+/* =========================
+   全体スタイル
+========================= */
+body {
+  margin: 0;
+  font-family: system-ui, "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  transition: background 0.3s, color 0.3s;
+}
+
+/* =========================
+   ヘッダー
+========================= */
+header {
+  background: linear-gradient(90deg, #0aa8f0);
+  padding: 20px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+/* 🔹 コンテンツを中央揃えに */
+.header-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center; /* 中央寄せ */
+  gap: 16px;
+  max-width: 1000px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* 🔹 ロゴ */
+.logo {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+}
+
+/* 🔹 タイトルとサブタイトル */
+.header-text h1 {
+  margin: 0;
+  font-size: 24px;
+}
+.header-text .subtitle {
+  color: #f8fafc;
+  font-size: 14px;
+  margin: 4px 0 0;
+}
+
+/* 🔹 テーマ切り替えボタン */
+.theme-toggle {
+  margin-left: 16px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--text);
+  transition: transform 0.2s;
+}
+.theme-toggle:hover {
+  transform: scale(1.2);
+}
+
+/* =========================
+   メインレイアウト
+========================= */
+.container {
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 0 16px;
+}
+
+/* 検索とタグ */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+input.search {
+  flex: 1;
+  min-width: 240px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: var(--card);
+  color: var(--text);
+}
+
+/* タグ */
+#tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.tag {
+  background: #eef2ff;
+  color: #1e3a8a;
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.tag.active {
+  background: var(--accent);
+  color: white;
+}
+
+/* =========================
+   カード表示
+========================= */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+.card {
+  background: var(--card);
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.1s, box-shadow 0.1s, background 0.3s;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+}
+.title {
+  font-weight: 600;
+  margin: 0;
+}
+.desc {
+  color: var(--muted);
+  font-size: 14px;
+}
+.meta {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: auto;
+}
+
+/* 該当なしメッセージ */
+.empty {
+  text-align: center;
+  color: var(--muted);
+  margin-top: 30px;
+}
+
+/* =========================
+   スマホ対応
+========================= */
+@media (max-width: 600px) {
+  .header-content {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .logo {
+    width: 64px;
+    height: 64px;
+  }
+  .theme-toggle {
+    margin-left: 0;
+  }
+}
