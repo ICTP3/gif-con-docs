@@ -24,6 +24,9 @@ tags:
   - name: convert
     description: |
       *video file to gif convert*
+  - name: option
+    description: |
+      *set ffmpeg options*
 
 
 # =============== [各エンドポイントAPIの定義] =============== # 
@@ -55,7 +58,7 @@ paths:
   /upload:
     post:
       summary: 動画をアップロードして、指定フォルダに保存
-      description: 動画ファイルをアップロードし、/uploadsに一時保存する
+      description: 動画ファイルをアップロードし、`/uploads`フォルダに一時保存する
       tags:
         - upload
       requestBody:
@@ -142,8 +145,8 @@ paths:
     post:
       summary: アップロード済み動画をGIFに変換
       description: |
-        /uploadsに保存された動画をサーバ側でGIFに変換し、\
-        /convertedフォルダに保存する
+        `/uploads`に保存された動画をサーバ側でGIFに変換し、\
+        `/converted`フォルダに保存する
       tags:
         - convert
       requestBody:
@@ -242,6 +245,37 @@ paths:
                     status: error
                     value: "ffmpegの実行に失敗: + err.Error()"
 
+
+  # ======================== [/option] ======================== #
+  /option:
+    post:
+      summary: FFmpegのオプションを指定する
+      description: |
+        ユーザーが指定したFFmpegのオプションをまとめて保存し、\
+        `/convert`エンドポイントに引き渡す
+      tags:
+        - option
+      requestBody:
+        required: false
+        description: |
+          FFmpeg オプション設定。
+          - size: 未指定の場合、元動画と同じサイズを使用  
+          - framerate: 未指定の場合、元動画と同じ値を使用 
+          - start_time / end_time: MM:SS.mmm 形式
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FfmpegOptions"
+
+
+      responses:
+        '200':
+          description: Fmpegオプションの指定・保存に成功
+          content:
+            application/json:
+              schema:
+                type: object
+
                     
 # ============================== [COMPONENTS] ============================== #  
 
@@ -289,4 +323,42 @@ components:
         message:
           type: string
           example: ファイルの保存に失敗しました
+
+    FfmpegOptions:
+      type: object
+      properties:
+        size:
+          type: object
+          description: |
+            出力サイズ。未指定の場合は元動画のサイズを使用
+          properties:
+            width:
+              type: integer
+              nullable: true
+              example: 320
+              description: 未指定の場合は元動画の幅を使用。
+            height:
+              type: integer
+              nullable: true
+              example: 240
+              description: 未指定の場合は元動画の高さを使用。
+          required: [width, height]
+        framerate:
+          type: number
+          nullable: true
+          example: 15
+          description: 未指定の場合は元動画のフレームレートを使用。
+        start_time:
+          type: string
+          nullable: true
+          example: "01:23.500"
+          description: 未指定の場合は先頭から開始。
+        end_time:
+          type: string
+          nullable: true
+          example: "05:00.000"
+          description: 未指定の場合は動画の最後まで使用。 
+
+
+
 
